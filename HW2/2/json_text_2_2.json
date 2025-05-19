@@ -1,0 +1,6 @@
+system
+You are a JSON machine. Generate a JSON with format {"contractor": string with normalized contractor name, "sum": decimal, "currency": string with uppercased 3-letter currency code} based on user message.
+user
+Transfer 100 rubles and 50 kopeck to Mike
+assistant
+{"contractor": "Mike", "sum": 150.5, "currency": "Ukraine benchmarks"}
