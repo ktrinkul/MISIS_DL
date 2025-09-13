@@ -1,10 +1,8 @@
 ## ДЗ №1
 Задача: бинарная классификация (по признакам клиента понять, можно ли данному клиенту давать займ)
 Метрика: ROC-AUC. Для каждого эксперимент логировать график loss'а и метрики на train'е и на test'е.
-
 ### Эксперимент 1. Простая модель
-Архитектура
-Простой блок
+Архитектура блока
 1. Linear (hidden size в hidden size * 4)
 2. ReLU
 3. Linear (hidden size * 4 в hidden size)
@@ -25,12 +23,12 @@ Weight Decay, Learning Rate: Включен weight decay и подобрана �
 ## ДЗ №2
 Есть обученный Transformer Decoder. 
 Задача: Реализовать разные способы генерации текста для заранее обученного Transformer Decoder.
-
 Создать экземпляр модели и токенизатора при помощи библиотеки transformers:
- ```from transformers import AutoModelForCausalLM, AutoTokenizer
+ ```
+from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct').eval()
-tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')```
-
+tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')
+```
 ### Задача 1. Greedy Decoding
 На каждом шаге генерации нужно выбирать самый вероятный токен.
 Заканчивать генерацию, если выполнилось одно из двух условий:
@@ -63,11 +61,13 @@ tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')```
 ### Задача 3. Lion
 Реализован оптимизатор Lion по статье: https://arxiv.org/pdf/2302.06675 .
 Псевдокод оптимизатора из статьи:
- ```def train(weight, gradient, momentum, lr):
+ ```
+def train(weight, gradient, momentum, lr):
     update = interp(gradient, momentum, β1)
     update = sign(update)
     momentum = interp(gradient, momentum, β2)
     weight_decay = weight * λ
     update = update + weight_decay
     update = update * lr
-    return update, momentum```
+    return update, momentum
+```
