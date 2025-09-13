@@ -2,36 +2,72 @@
 Задача: бинарная классификация (по признакам клиента понять, можно ли данному клиенту давать займ)
 Метрика: ROC-AUC. Для каждого эксперимент логировать график loss'а и метрики на train'е и на test'е.
 
-- Эксперимент 1. Простая модель
-  Архитектура
-  Простой блок
-  1. Linear (hidden size в hidden size * 4)
-  2. ReLU
-  3. Linear (hidden size * 4 в hidden size)
-  Параметры
+### Эксперимент 1. Простая модель
+Архитектура
+Простой блок
+1. Linear (hidden size в hidden size * 4)
+2. ReLU
+3. Linear (hidden size * 4 в hidden size)
+Параметры
 hidden size = 32
 SGD c lr = 0.01
 количество эпох = 10
 batch size = 32
-- Эксперимент 2. Модель побольше
-  3 простых блока, hidden size = 128
-- Эксперимент 3.
-  Skip Connections, Batch Norms: Добавлен Skip Connection от входа блока к его выходу, а также Batch Norm в начале каждого блока
-- Эксперимент 4. Dropout
-  Добавлен dropout внутрь блока и подобран оптимальный p для него (можно среди 0.01, 0.1, 0.2, 0.5, 0.9)
-- Эксперимент 5.
-  Weight Decay, Learning Rate: Включен weight decay и подобрана оптимальная пара: lambda для weight decay=(0.1, 0.01, 0.001) и оптимальный learning rate=(0.01, 0.05, 0.1).
+### Эксперимент 2. Модель побольше
+3 простых блока, hidden size = 128
+### Эксперимент 3.
+Skip Connections, Batch Norms: Добавлен Skip Connection от входа блока к его выходу, а также Batch Norm в начале каждого блока
+### Эксперимент 4. Dropout
+Добавлен dropout внутрь блока и подобран оптимальный p для него (можно среди 0.01, 0.1, 0.2, 0.5, 0.9)
+### Эксперимент 5.
+Weight Decay, Learning Rate: Включен weight decay и подобрана оптимальная пара: lambda для weight decay=(0.1, 0.01, 0.001) и оптимальный learning rate=(0.01, 0.05, 0.1).
 
 ## ДЗ №2
 Есть обученный Transformer Decoder. 
 Задача: Реализовать разные способы генерации текста для заранее обученного Transformer Decoder.
 
 Создать экземпляр модели и токенизатора при помощи библиотеки transformers:
-from transformers import AutoModelForCausalLM, AutoTokenizer
+ ```from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct').eval()
-tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')
+tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')```
 
 ### Задача 1. Greedy Decoding
+На каждом шаге генерации нужно выбирать самый вероятный токен.
+Заканчивать генерацию, если выполнилось одно из двух условий:
+1. сгенерировался EOS-токен с ID = 151645
+2. длина генерации превысила 1000 токенов.
+### Задача 2. Sampling
+На каждом шаге генерации получить из модели распределение вероятностей для следующего токена. Выполнять сэмплирование среди всех токенов из этого распределения.
+Заканчивать генерацию, если выполнилось одно из двух условий:
+1. сгенерировался EOS-токен с ID = 151645
+2. длина генерации превысила 1000 токенов.
+### Задача 3. Sampling meets Temperature
+### Задача 4. Nucleus Sampling
+Сэмплировать не из всего распределения, а только среди самых вероятных токенов. (Оставляем только самые вероятные токены, кумулятивная вероятность которых не превышает top_p. Остальные выбрасываем. Отмасштабируем каждую вероятность.)
+### Задача 5. Early-Stopped Beam Search
+Выбор самого вероятного токена не всегда приведёт нас к самой вероятной последовательности. Скор для каждого кандидата будет равен сумме скора кандидата-родителя (объект, состоящий из последовательности токенов и из численного скора) и значению logprobe (log_softmax на logit) у добавленного токена-продолжения.
 
+## ДЗ №3
+Построить Retrieval-систему, которая будет искать релевантные ответы по запросу пользователя.
+### Задача 1. Метрики
+Функция для расчёта метрики Recall@K (Какая доля вопросов содержит в ТОП-K выдачи правильный документ). 
+Функция для расчёта метрики MRR (Средний обратный ранг, учитывает позицию первого релевантного элемента в ранжированном списке).
+### Задача 2. TF-IDF Baseline
+Метрики: MRR и Recall@1, Recall@3, Recall@10.
 
-
+## ДЗ №4
+### Задача 1. RMSNorm
+Реализован слой RMSNorm по статье https://arxiv.org/pdf/1910.07467 .
+### Задача 2. AutoGrad
+Реализован AutoGrad Function для бинарной операции: e^X + cos(Y).
+### Задача 3. Lion
+Реализован оптимизатор Lion по статье: https://arxiv.org/pdf/2302.06675 .
+Псевдокод оптимизатора из статьи:
+ ```def train(weight, gradient, momentum, lr):
+    update = interp(gradient, momentum, β1)
+    update = sign(update)
+    momentum = interp(gradient, momentum, β2)
+    weight_decay = weight * λ
+    update = update + weight_decay
+    update = update * lr
+    return update, momentum```
